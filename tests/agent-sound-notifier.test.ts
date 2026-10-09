@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, mock, test } from "node:test";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { registerCompletionSound } from "../extensions/agent-sound-notifier.js";
+import { registerCompletionSound, type AgentStatus } from "../extensions/agent-sound-notifier.js";
 
 type PiHandler = (event: unknown, ctx: ExtensionContext) => void;
 
@@ -28,72 +28,67 @@ function fakePi() {
 }
 
 function fakeContext(mode: "tui" | "rpc" = "tui", cwd = "/work/demo") {
-  const titles: string[] = [];
-  const ctx = {
-    mode,
-    cwd,
-    ui: { setTitle: (title: string) => titles.push(title) },
-  } as unknown as ExtensionContext;
-  return { ctx, titles };
+  return { mode, cwd } as unknown as ExtensionContext;
+}
+
+function recorder() {
+  const statuses: string[] = [];
+  return { statuses, report: (status: AgentStatus, ctx: ExtensionContext) => statuses.push(`${status} ${ctx.cwd}`) };
 }
 
 afterEach(() => mock.reset());
 
-test("marks the terminal tab yellow only after the agent settles", () => {
+test("reports the project status as done only after the agent settles", () => {
   const { pi, registrations, fire } = fakePi();
-  const { ctx, titles } = fakeContext();
+  const { statuses, report } = recorder();
+  const ctx = fakeContext();
   let playCount = 0;
 
-  registerCompletionSound(pi, () => playCount++);
+  registerCompletionSound(pi, () => playCount++, report);
 
   assert.deepEqual(registrations, ["agent_start", "agent_settled"]);
   fire("agent_start", ctx);
-  assert.deepEqual(titles, ["⚪ demo · Pi"]);
+  assert.deepEqual(statuses, ["start /work/demo"]);
   assert.equal(playCount, 0);
 
   fire("agent_settled", ctx);
-  assert.deepEqual(titles, ["⚪ demo · Pi", "🟡 demo · Pi"]);
+  assert.deepEqual(statuses, ["start /work/demo", "stop /work/demo"]);
   assert.equal(playCount, 1);
 });
 
 test("does not change terminal titles in non-TUI modes", () => {
   const { pi, fire } = fakePi();
-  const { ctx, titles } = fakeContext("rpc");
+  const { statuses, report } = recorder();
 
-  registerCompletionSound(pi, () => {});
-  fire("agent_start", ctx);
+  registerCompletionSound(pi, () => {}, report);
+  fire("agent_start", fakeContext("rpc"));
 
-  assert.deepEqual(titles, []);
+  assert.deepEqual(statuses, []);
 });
 
 test("does not let terminal-title failures interrupt agent events", () => {
   const { pi, fire } = fakePi();
   const warning = mock.method(console, "warn", () => {});
-  const ctx = {
-    mode: "tui",
-    cwd: "/work/demo",
-    ui: { setTitle: () => { throw new Error("terminal title unavailable"); } },
-  } as unknown as ExtensionContext;
   let playCount = 0;
 
-  registerCompletionSound(pi, () => playCount++);
+  registerCompletionSound(pi, () => playCount++, () => { throw new Error("terminal title unavailable"); });
 
-  assert.doesNotThrow(() => fire("agent_start", ctx));
-  assert.doesNotThrow(() => fire("agent_settled", ctx));
+  assert.doesNotThrow(() => fire("agent_start", fakeContext()));
+  assert.doesNotThrow(() => fire("agent_settled", fakeContext()));
   assert.equal(playCount, 1);
   assert.equal(warning.mock.callCount(), 2);
 });
 
 test("does not let a sound failure interrupt the settled event", () => {
   const { pi, fire } = fakePi();
-  const { ctx, titles } = fakeContext();
+  const { statuses, report } = recorder();
   const warning = mock.method(console, "warn", () => {});
 
   registerCompletionSound(pi, () => {
     throw new Error("audio unavailable");
-  });
+  }, report);
 
-  assert.doesNotThrow(() => fire("agent_settled", ctx));
+  assert.doesNotThrow(() => fire("agent_settled", fakeContext()));
   assert.equal(warning.mock.callCount(), 1);
-  assert.deepEqual(titles, ["🟡 demo · Pi"]);
+  assert.deepEqual(statuses, ["stop /work/demo"]);
 });

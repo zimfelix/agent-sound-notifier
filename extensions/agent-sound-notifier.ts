@@ -1,36 +1,43 @@
 import { spawn } from "node:child_process";
-import { basename } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 const COMPLETION_SOUND = "/System/Library/Sounds/Pop.aiff";
 const AFPLAY = "/usr/bin/afplay";
+const AGENT_STATUS = fileURLToPath(new URL("../hooks/agent-status.sh", import.meta.url));
 
-function playCompletionSound(): void {
+export type AgentStatus = "start" | "stop";
+export type StatusReporter = (status: AgentStatus, ctx: ExtensionContext) => void;
+
+function runQuietly(command: string, args: string[], label: string): void {
   try {
-    const player = spawn(AFPLAY, ["-v", "0.5", COMPLETION_SOUND], {
-      stdio: "ignore",
+    const child = spawn(command, args, { stdio: "ignore" });
+    child.on("error", (error) => {
+      console.warn(`[agent-sound-notifier] Could not run ${label}: ${error.message}`);
     });
-
-    player.on("error", (error) => {
-      console.warn(`[agent-sound-notifier] Could not play completion sound: ${error.message}`);
-    });
-    player.on("exit", (code) => {
+    child.on("exit", (code) => {
       if (code !== 0) {
-        console.warn(`[agent-sound-notifier] Audio player exited with code ${code}.`);
+        console.warn(`[agent-sound-notifier] ${label} exited with code ${code}.`);
       }
     });
   } catch (error) {
-    console.warn("[agent-sound-notifier] Could not start the audio player.", error);
+    console.warn(`[agent-sound-notifier] Could not start ${label}.`, error);
   }
 }
 
-function setTerminalTabStatus(ctx: ExtensionContext, completed: boolean): void {
-  if (ctx.mode !== "tui") return;
+function playCompletionSound(): void {
+  runQuietly(AFPLAY, ["-v", "0.5", COMPLETION_SOUND], "the audio player");
+}
 
-  const projectName = basename(ctx.cwd) || "project";
-  const marker = completed ? "🟡" : "⚪";
+/** Shares this agent's state with other agents of the project (see hooks/agent-status.sh). */
+function reportProjectStatus(status: AgentStatus, ctx: ExtensionContext): void {
+  runQuietly("/bin/sh", [AGENT_STATUS, status, "Pi", String(process.pid), ctx.cwd], "the tab status script");
+}
+
+function setTerminalTabStatus(reportStatus: StatusReporter, status: AgentStatus, ctx: ExtensionContext): void {
+  if (ctx.mode !== "tui") return;
   try {
-    ctx.ui.setTitle(`${marker} ${projectName} · Pi`);
+    reportStatus(status, ctx);
   } catch (error) {
     console.warn("[agent-sound-notifier] Could not update the terminal tab title.", error);
   }
@@ -39,9 +46,10 @@ function setTerminalTabStatus(ctx: ExtensionContext, completed: boolean): void {
 export function registerCompletionSound(
   pi: Pick<ExtensionAPI, "on">,
   playSound: () => void = playCompletionSound,
+  reportStatus: StatusReporter = reportProjectStatus,
 ): void {
   pi.on("agent_start", (_event, ctx) => {
-    setTerminalTabStatus(ctx, false);
+    setTerminalTabStatus(reportStatus, "start", ctx);
   });
 
   pi.on("agent_settled", (_event, ctx) => {
@@ -50,7 +58,7 @@ export function registerCompletionSound(
     } catch (error) {
       console.warn("[agent-sound-notifier] Completion sound failed.", error);
     }
-    setTerminalTabStatus(ctx, true);
+    setTerminalTabStatus(reportStatus, "stop", ctx);
   });
 }
 

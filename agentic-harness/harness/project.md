@@ -17,9 +17,11 @@ Dieses Profil bleibt kurz und nennt nur bestätigte Grenzen und tatsächlich ver
 
 `agent-sound-notifier` benachrichtigt Nutzer von Coding Agents (Pi als Extension, Claude Code über Hooks), die im PyCharm-Terminal arbeiten. Beim endgültigen Abschluss eines Agent-Laufs spielt sie einen kurzen Sound ab und markiert den Terminal-Tab im Titel gelb.
 
-Für Claude Code liefert `hooks/claude-notify.sh` dasselbe Verhalten über Hooks in `~/.claude/settings.json`: `UserPromptSubmit` setzt den neutralen Punkt, `Stop` den gelben Punkt und den Ton. Der Titel wird an das Terminal-Gerät des nächsten Vorfahrenprozesses mit TTY geschrieben.
+Für Claude Code liefert `hooks/claude-notify.sh` dasselbe Verhalten über Hooks in `~/.claude/settings.json`: `UserPromptSubmit` setzt den neutralen Punkt, `Stop` den gelben Punkt und den Ton. Der nächste Vorfahrenprozess mit TTY (`claude`) identifiziert Agent und Tab; Claudes eigener Titel ist per `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` abgeschaltet.
 
-Die TypeScript-Extension nutzt `agent_start` und `agent_settled` sowie Pi's `ctx.ui.setTitle()`. PyCharm kann Terminaltabs über OSC-Titel umbenennen. Zielsystem ist macOS. Ein eigenes PyCharm-Plugin, modellabhängige Integration, Desktop-Popups und zusätzliche Sounds sind nicht Teil des Meilensteins.
+Beide Integrationen melden ihren Stand an `hooks/agent-status.sh`. Es führt je Projekt (Git-Root) eine Statusdatei pro Terminal unter `~/.cache/agent-sound-notifier/`, entfernt beendete Agent-Prozesse und schreibt den gemeinsamen Titel mit Anzahl in alle Tabs des Projekts.
+
+Die TypeScript-Extension nutzt `agent_start` und `agent_settled` und ruft für den Tabtitel das gemeinsame Statusskript auf. PyCharm kann Terminaltabs über OSC-Titel umbenennen. Zielsystem ist macOS. Ein eigenes PyCharm-Plugin, modellabhängige Integration, Desktop-Popups und zusätzliche Sounds sind nicht Teil des Meilensteins.
 
 ### Betrieb, Daten und Freigaben
 
@@ -30,7 +32,7 @@ Die Extension läuft im Pi-Prozess und nutzt dessen Lifecycle-API. Audio wird lo
 Am Projektroot:
 
 - `npm install` — Abhängigkeiten installiert.
-- `npm test` — PASS: 4 Unit-Tests.
+- `npm test` — PASS: 10 Tests (4 Extension, 6 Statusskript).
 - `npm run typecheck` — PASS: TypeScript-Prüfung.
 - `pi install "$(pwd)"` — persönliche Pi-Installation ausgeführt; `pi list` zeigt das Paket `../../Code/python/agent-sound-notifier`.
 

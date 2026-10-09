@@ -21,6 +21,7 @@ Restart Pi, then confirm the package is listed with `pi list`. It will be availa
 
 - Listen for Pi's final `agent_settled` event and play the macOS `Pop` sound at reduced volume.
 - Show a neutral dot while Pi is working and a yellow dot in the terminal-tab title when it settles.
+- Share one status per project with all agents (Pi and Claude Code): every tab of the project shows e.g. `⚪ 1 arbeitet · 🟡 1 fertig · hier 🟡 Claude`, so the PyCharm project tab says "working" while any agent works. Finished agent processes drop out; state lives in `~/.cache/agent-sound-notifier/` (see `hooks/agent-status.sh`).
 
 This is a Pi extension, not a PyCharm plugin. It uses Pi's terminal-title API; [PyCharm supports programmatically renamed terminal tabs](https://www.jetbrains.com/help/pycharm/terminal-emulator.html). It targets macOS and does not depend on the selected model/provider. The full live smoke test in a PyCharm terminal is still pending.
 
@@ -39,6 +40,12 @@ Claude Code does not load Pi extensions. The same behaviour is available there t
     ]
   }
 }
+```
+
+Also turn off Claude Code's own tab title, otherwise it overwrites the status:
+
+```json
+{ "env": { "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1" } }
 ```
 
 Start a new Claude Code session (or open `/hooks` once) to load them. Hooks have no controlling terminal, so the script writes the title to the terminal device of the nearest ancestor process (the `claude` CLI). In the Claude desktop app there is no terminal, so only the sound plays.
