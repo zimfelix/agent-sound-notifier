@@ -22,7 +22,7 @@ Restart Pi, then confirm the package is listed with `pi list`. It will be availa
 - Listen for Pi's final `agent_settled` event and play the macOS `Pop` sound at reduced volume.
 - Show a neutral dot while Pi is working and a yellow dot in the terminal-tab title when it settles.
 - Keep each coding terminal small: `⚪ Pi` / `🟡 Pi` or `⚪ Claude` / `🟡 Claude`. White means running; yellow means the last response finished. There is no read/acknowledgement tracking.
-- Show separate project totals through the [PyCharm companion](#pycharm-project-tabs): `2/3 finished · 1 running`, `3/3 finished`, or `3 running`. Finished means completed responses in still-live sessions; exited agents drop out. Projects are grouped by Git root, otherwise working directory.
+- Show separate project totals through the [PyCharm companion](#pycharm-project-tabs): `🟡 2/3 finished · ⚪ 1 running`, `🟡 3/3 finished`, or `⚪ 3 running`. Finished means completed responses in still-live sessions; exited agents drop out. Projects are grouped by Git root, otherwise working directory.
 
 The agent integrations write terminal titles via OSC and local status files under `~/.cache/agent-sound-notifier/` (see `hooks/agent-status.sh`). **OSC titles alone do not reliably refresh inactive PyCharm project tabs**; the companion updates native window titles independently of terminal selection. The full live smoke test after installing the companion is still pending.
 
@@ -53,7 +53,7 @@ Start a new Claude Code session (or open `/hooks` once) to load them. Hooks have
 
 ## PyCharm project tabs
 
-The local companion is required for automatic upper project-tab updates. It polls the shared status once per second, reads no conversations, and uses PyCharm's title-info extension point to refresh **all open project frames**, including inactive macOS window tabs. It enables `Settings → Tools → Terminal → Use application title as tab name → Always` so that individual agent tabs retain their OSC status dots. **Do not disable this setting:** it hides terminal-tab status as well, not just window-title text. Project totals are independently supplied by the companion. Its project-only frame-title builder omits the selected file, folder and terminal name: e.g. `learning-sandbox 2/3 finished · 1 running`. With no live sessions only the project name appears. Individual terminal tabs keep their own ⚪/🟡 titles. This integration does not add chat recommendations or change prompts, models, or token throughput.
+The local companion is required for automatic upper project-tab updates. It polls the shared status once per second, reads no conversations, and uses PyCharm's title-info extension point to refresh **all open project frames**, including inactive macOS window tabs. It enables `Settings → Tools → Terminal → Use application title as tab name → Always` so that individual agent tabs retain their OSC status dots. **Do not disable this setting:** it hides terminal-tab status as well, not just window-title text. Project totals are independently supplied by the companion. Its project-only frame-title builder omits the selected file, folder and terminal name: e.g. `learning-sandbox 🟡 2/3 finished · ⚪ 1 running`. With no live sessions only the project name appears. Individual terminal tabs keep their own ⚪/🟡 titles. This integration does not add chat recommendations or change prompts, models, or token throughput.
 
 Build against your installed PyCharm 2026.2 SDK and its bundled JDK:
 

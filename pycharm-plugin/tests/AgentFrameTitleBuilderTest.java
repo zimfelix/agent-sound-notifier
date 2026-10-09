@@ -18,7 +18,7 @@ public final class AgentFrameTitleBuilderTest {
       if (!builder.getProjectTitle(project).equals(name)) throw new AssertionError("Project name changed");
       if (!builder.getFileTitle(project, null).isEmpty()) throw new AssertionError("Selected file leaks into title");
       String title = builder.getProjectTitle(project) + " " + new ProjectStatus.Counts(1, 2).title();
-      if (!title.equals(name + " 2/3 finished · 1 running")) throw new AssertionError(title);
+      if (!title.equals(name + " 🟡 2/3 finished · ⚪ 1 running")) throw new AssertionError(title);
     }
     String xml = Files.readString(Path.of("resources/META-INF/plugin.xml"));
     if (!xml.contains("serviceInterface=\"com.intellij.openapi.wm.impl.FrameTitleBuilder\"")

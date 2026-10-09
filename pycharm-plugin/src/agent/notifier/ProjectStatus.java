@@ -13,8 +13,8 @@ public final class ProjectStatus {
     public String title() {
       int total = working + done;
       if (total == 0) return "";
-      if (done == 0) return working + " running";
-      return done + "/" + total + " finished" + (working == 0 ? "" : " · " + working + " running");
+      if (done == 0) return "⚪ " + working + " running";
+      return "🟡 " + done + "/" + total + " finished" + (working == 0 ? "" : " · ⚪ " + working + " running");
     }
   }
 

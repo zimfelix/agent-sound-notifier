@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>agent.sound.notifier.project-status</id>
   <name>Agent Sound Notifier — Project Status</name>
-  <version>1.2.1</version>
+  <version>1.2.2</version>
   <vendor>zimfelix</vendor>
   <description>Compact, automatically refreshed project status for local Pi and Claude Code sessions. Reads only the agent-sound-notifier cache.</description>
   <idea-version since-build="262" until-build="262.*"/>
