@@ -1,0 +1,15 @@
+<idea-plugin>
+  <id>agent.sound.notifier.project-status</id>
+  <name>Agent Sound Notifier — Project Status</name>
+  <version>1.2.1</version>
+  <vendor>zimfelix</vendor>
+  <description>Compact, automatically refreshed project status for local Pi and Claude Code sessions. Reads only the agent-sound-notifier cache.</description>
+  <idea-version since-build="262" until-build="262.*"/>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>org.jetbrains.plugins.terminal</depends>
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationService serviceInterface="com.intellij.openapi.wm.impl.FrameTitleBuilder"
+                        serviceImplementation="agent.notifier.AgentFrameTitleBuilder" overrides="true"/>
+    <titleInfoProvider implementation="agent.notifier.AgentTitleProvider"/>
+  </extensions>
+</idea-plugin>

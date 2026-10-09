@@ -15,11 +15,13 @@ Nur Regeln für den tatsächlich gewählten Stack festhalten. Kandidaten sind ke
 
 ### Stack und Abhängigkeiten
 
-Die Extension ist TypeScript für die Pi Extension API. Sie wurde mit Pi 0.87.1 geladen und Node.js 26.8.1 entwickelt; `package.json` verlangt Node.js 22.19 oder neuer. Pi lädt die TypeScript-Extension aus dem lokalen Paket. Zielsystem ist macOS; ein Audio-Framework oder weitere Laufzeitabhängigkeiten werden nicht benötigt.
+Die Extension ist TypeScript für die Pi Extension API. Sie wurde mit Pi 0.87.1 geladen und Node.js 26.8.1 entwickelt; `package.json` verlangt Node.js 22.19 oder neuer. Pi lädt die TypeScript-Extension aus dem lokalen Paket. Zielsystem ist macOS; ein Audio-Framework oder weitere Laufzeitabhängigkeiten werden für die Agent-Integration nicht benötigt. Das separate Companion nutzt Java 21 und die API der lokal installierten PyCharm-IDE (Build 262.*), ohne Gradle-Abhängigkeit; Python 3 paketiert das Plugin-ZIP.
 
 ### Codekonventionen
 
-Kleiner, klar abgegrenzter Extension-Einstieg. Aufruf des Audio-Players mit festgelegtem ausführbarem Programm und Argumenten, ohne Shell-Interpolation. Den Terminaltitel nur im `tui`-Modus über `ctx.ui.setTitle()` setzen; Audio- und UI-Fehler abfangen, damit sie den Pi-Agent-Lauf nicht stören. Abhängigkeiten nur ergänzen, falls ein konkreter Bedarf entsteht.
+Kleiner, klar abgegrenzter Extension-Einstieg. Aufruf des Audio-Players mit festgelegtem ausführbarem Programm und Argumenten, ohne Shell-Interpolation. Den gemeinsamen Statuswriter für Pi nur im `tui`-Modus aufrufen; Audio- und UI-Fehler abfangen, damit sie den Pi-Agent-Lauf nicht stören. Abhängigkeiten nur ergänzen, falls ein konkreter Bedarf entsteht.
+
+Das Companion liest den Cache im Hintergrund; der UI-Thread erhält nur fertige Titel und Änderungsnachrichten. Kein Terminalfokus als Trigger. Dateien atomar ersetzen, temporäre/ungültige Einträge ignorieren und Prozesslebendigkeit prüfen; IDE- und Agent-Lifecycle nicht durch Cachefehler blockieren.
 
 ### Qualitätswerkzeuge
 

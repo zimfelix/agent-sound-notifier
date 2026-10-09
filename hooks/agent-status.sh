@@ -1,52 +1,36 @@
 #!/bin/sh
-# Shared project status for terminal tabs (Pi extension and Claude Code hooks).
-#   agent-status.sh start|stop <agent> <pid> <project-dir> [tty]
-# Each agent records "<status> <pid> <agent>" in a file named after its tty under
-# a per-project state directory. On every change the script counts the live
-# agents of the project and writes the combined title to all of their tabs, so
-# the PyCharm project tab shows "working" while at least one agent works.
-# Overrides for tests: AGENT_STATUS_STATE_DIR, AGENT_STATUS_DEV_DIR.
-
+# Record local status for the PyCharm companion; keep the terminal's own title small.
+# agent-status.sh start|stop <Pi|Claude> <pid> <project-dir> [tty]
 action=$1 agent=$2 pid=$3 project=$4 tty=$5
-case "$action" in start) status=working ;; stop) status=done ;; *) exit 0 ;; esac
-[ -n "$agent" ] && [ -n "$pid" ] && [ -n "$project" ] || exit 0
+case "$action" in start) status=working; dot="⚪" ;; stop) status=done; dot="🟡" ;; *) exit 0 ;; esac
+case "$agent" in Pi|Claude) ;; *) exit 0 ;; esac
+case "$pid" in ""|*[!0-9]*) exit 0 ;; esac
+[ "$pid" -gt 1 ] && [ -n "$project" ] || exit 0
 [ -n "$tty" ] || tty=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ')
-case "$tty" in ""|"??") exit 0 ;; esac
 tty=${tty#/dev/}
+case "$tty" in ""|*[!a-zA-Z0-9_-]*) exit 0 ;; esac
 
 dev_dir=${AGENT_STATUS_DEV_DIR:-/dev}
-root=$(git -C "$project" rev-parse --show-toplevel 2>/dev/null) || root=$project
+[ -w "$dev_dir/$tty" ] || exit 0
+root=$(git -C "$project" rev-parse --show-toplevel 2>/dev/null) || root=$(cd "$project" 2>/dev/null && pwd -P) || exit 0
 key=$(printf '%s' "$root" | shasum | cut -c1-16)
 state=${AGENT_STATUS_STATE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/agent-sound-notifier}/$key
-mkdir -p "$state" || exit 0
+(umask 077; mkdir -p "$state") || exit 0
 
+# Atomic replacement: the companion never reads partial status or project paths.
+tmp=$(mktemp "$state/.project.XXXXXX") || exit 0
+printf '%s\n' "$root" > "$tmp" && mv "$tmp" "$state/.project"
 tmp=$(mktemp "$state/.entry.XXXXXX") || exit 0
 printf '%s %s %s\n' "$status" "$pid" "$agent" > "$tmp" && mv "$tmp" "$state/$tty"
 
-working=0 done=0
+# Reap dead sessions; .project and in-flight writes aren't session entries.
 for entry in "$state"/*; do
   [ -f "$entry" ] || continue
   read -r s p a < "$entry"
-  if ! kill -0 "$p" 2>/dev/null; then rm -f "$entry"; continue; fi
-  case "$s" in working) working=$((working + 1)) ;; done) done=$((done + 1)) ;; esac
+  case "$p" in ""|*[!0-9]*) continue ;; esac
+  if ! kill -0 "$p" 2>/dev/null; then rm -f "$entry"; fi
 done
 
-total=$((working + done))
-if [ "$working" -gt 0 ] && [ "$done" -gt 0 ]; then summary="⚪ $working arbeitet · 🟡 $done fertig"
-elif [ "$working" -gt 0 ]; then summary="⚪ $working arbeitet"
-else summary="🟡 $done fertig"
-fi
-
-for entry in "$state"/*; do
-  [ -f "$entry" ] || continue
-  read -r s p a < "$entry"
-  if [ "$total" -gt 1 ]; then
-    case "$s" in working) own="⚪" ;; *) own="🟡" ;; esac
-    title="$summary · hier $own $a"
-  else
-    title="$summary · $a"
-  fi
-  device="$dev_dir/${entry##*/}"
-  [ -w "$device" ] && printf '\033]0;%s\007' "$title" > "$device" 2>/dev/null
-done
+# Only this terminal receives its own status. Project counts belong to the IDE.
+printf '\033]0;%s %s\007' "$dot" "$agent" > "$dev_dir/$tty" 2>/dev/null
 exit 0
