@@ -2,6 +2,9 @@
 # Claude Code hook: mirrors the Pi extension.
 #   start (UserPromptSubmit) -> project status "working" in the tab titles
 #   stop  (Stop)             -> project status "done" + completion sound
+#   ask   (PreToolUse AskUserQuestion|ExitPlanMode)
+#                            -> same as stop: Claude waits for an answer mid-turn,
+#                               so Stop does not fire; PostToolUse runs "start" again
 # Hooks run without a controlling terminal, so the nearest ancestor process with
 # a terminal (the `claude` CLI) identifies this agent and its tab.
 # Claude Code's own title must be off: CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1.
@@ -25,7 +28,7 @@ set_status() {
 
 case "$1" in
   start) set_status start ;;
-  stop)
+  stop|ask)
     set_status stop
     /usr/bin/afplay -v 0.5 /System/Library/Sounds/Pop.aiff
     ;;

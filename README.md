@@ -28,7 +28,7 @@ The agent integrations write terminal titles via OSC and local status files unde
 
 ## Claude Code
 
-Claude Code does not load Pi extensions. The same behaviour is available there through two hooks that run `hooks/claude-notify.sh`: `UserPromptSubmit` sets a neutral dot in the terminal-tab title, `Stop` sets the yellow dot and plays the sound. Add them to `~/.claude/settings.json` (use the absolute path of your checkout):
+Claude Code does not load Pi extensions. The same behaviour is available there through two hooks that run `hooks/claude-notify.sh`: `UserPromptSubmit` sets a neutral dot in the terminal-tab title, `Stop` sets the yellow dot and plays the sound. Claude's follow-up questions (`AskUserQuestion`, e.g. options marked "(Recommended)", and plan approval via `ExitPlanMode`) pause the turn without `Stop`, so a `PreToolUse` hook gives the same yellow dot and sound, and `PostToolUse` switches back to the neutral dot after you answer. Add them to `~/.claude/settings.json` (use the absolute path of your checkout):
 
 ```json
 {
@@ -38,6 +38,12 @@ Claude Code does not load Pi extensions. The same behaviour is available there t
     ],
     "Stop": [
       { "hooks": [ { "type": "command", "command": "/path/to/agent-sound-notifier/hooks/claude-notify.sh stop 2>/dev/null || true", "async": true } ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "AskUserQuestion|ExitPlanMode", "hooks": [ { "type": "command", "command": "/path/to/agent-sound-notifier/hooks/claude-notify.sh ask 2>/dev/null || true", "async": true } ] }
+    ],
+    "PostToolUse": [
+      { "matcher": "AskUserQuestion|ExitPlanMode", "hooks": [ { "type": "command", "command": "/path/to/agent-sound-notifier/hooks/claude-notify.sh start 2>/dev/null || true", "async": true } ] }
     ]
   }
 }
