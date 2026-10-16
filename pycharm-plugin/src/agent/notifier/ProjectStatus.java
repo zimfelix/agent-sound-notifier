@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.LongPredicate;
+import java.util.concurrent.TimeUnit;
 
 /** Local, read-only snapshot. No IDE dependencies so the real filesystem boundary is testable. */
 public final class ProjectStatus {
@@ -18,6 +18,47 @@ public final class ProjectStatus {
     }
   }
 
+  /**
+   * A session counts only while its agent process still owns the terminal it reported from. A closed tab
+   * leaves `claude` running without a terminal ("??"), and a reused PID belongs to another terminal or none.
+   */
+  public interface Sessions { boolean live(long pid, String tty); }
+
+  /** One `ps` call per refresh, only when the cache contains entries to check. */
+  public static Sessions fromPs() {
+    return new Sessions() {
+      private Map<Long, String> ttys;
+      @Override public boolean live(long pid, String tty) {
+        if (ttys == null) ttys = parsePs(runPs());
+        return tty.equals(ttys.get(pid));
+      }
+    };
+  }
+
+  static Map<Long, String> parsePs(String output) {
+    Map<Long, String> ttys = new HashMap<>();
+    for (String line : output.split("\n")) {
+      String[] fields = line.strip().split("\\s+");
+      if (fields.length != 2) continue;
+      try { ttys.put(Long.parseLong(fields[0]), fields[1]); }
+      catch (NumberFormatException ignored) { /* header or garbage */ }
+    }
+    return ttys;
+  }
+
+  private static String runPs() {
+    try {
+      Process ps = new ProcessBuilder("/bin/ps", "-A", "-o", "pid=,tty=").redirectErrorStream(true).start();
+      String output = new String(ps.getInputStream().readAllBytes());
+      return ps.waitFor(2, TimeUnit.SECONDS) && ps.exitValue() == 0 ? output : "";
+    } catch (IOException e) {
+      return "";
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return "";
+    }
+  }
+
   public static Path cacheDirectory() {
     String override = System.getenv("AGENT_STATUS_STATE_DIR");
     if (override != null && !override.isBlank()) return Path.of(override);
@@ -26,7 +67,7 @@ public final class ProjectStatus {
     return cache.resolve("agent-sound-notifier");
   }
 
-  public static Map<Path, Counts> read(Path cache, LongPredicate alive) {
+  public static Map<Path, Counts> read(Path cache, Sessions sessions) {
     Map<Path, Counts> result = new HashMap<>();
     if (!Files.isDirectory(cache)) return Map.of();
     try (var dirs = Files.list(cache)) {
@@ -40,7 +81,7 @@ public final class ProjectStatus {
                 String[] fields = Files.readString(entry).strip().split("\\s+");
                 if (fields.length != 3 || !(fields[2].equals("Pi") || fields[2].equals("Claude"))) continue;
                 long pid = Long.parseLong(fields[1]);
-                if (pid <= 1 || !alive.test(pid)) continue;
+                if (pid <= 1 || !sessions.live(pid, entry.getFileName().toString())) continue;
                 if (fields[0].equals("working")) working++;
                 else if (fields[0].equals("done")) done++;
               } catch (IOException | IllegalArgumentException ignored) { /* replaced or invalid entry */ }

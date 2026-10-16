@@ -17,8 +17,9 @@ public final class ProjectStatusTest {
     builder.environment().put("AGENT_STATUS_DEV_DIR", dev.toString());
     equal(builder.start().waitFor(), 0);
   }
+  private static boolean alive(long pid) { return ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false); }
   private static String title(Path project) {
-    return ProjectStatus.titleFor(ProjectStatus.read(cache, pid -> ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false)), project);
+    return ProjectStatus.titleFor(ProjectStatus.read(cache, (pid, tty) -> ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false)), project);
   }
   public static void main(String[] args) throws Exception {
     script = Path.of(args[0]).toAbsolutePath();
@@ -55,13 +56,27 @@ public final class ProjectStatusTest {
       Files.writeString(dir.resolve("invalid"), "working nope Pi\n");
       Files.writeString(dir.resolve(".entry.partial"), "working " + ProcessHandle.current().pid() + " Pi\n");
       equal(title(one), "🟡 2/3 finished · ⚪ 1 running");
-      equal(ProjectStatus.titleFor(ProjectStatus.read(cache, pid -> false), one), "");
+      equal(ProjectStatus.titleFor(ProjectStatus.read(cache, (pid, tty) -> false), one), "");
+      // Closed tab: the agent process lives on without its terminal and must not count.
+      long self = ProcessHandle.current().pid();
+      var ttys = ProjectStatus.parsePs("  PID TTY\n" + self + " ttys001\n" + self + " ??\ngarbage\n");
+      equal(ttys, java.util.Map.of(self, "??"));
+      equal(ProjectStatus.titleFor(ProjectStatus.read(cache, (pid, tty) -> alive(pid) && !tty.equals("ttys002")), one), "🟡 1/2 finished · ⚪ 1 running");
+      // Reused PID: alive, but on another terminal than the entry.
+      equal(ProjectStatus.titleFor(ProjectStatus.read(cache, (pid, tty) -> tty.equals("ttys009")), one), "");
+      // Real ps: this process counts only on its actual terminal.
+      Process ps = new ProcessBuilder("/bin/ps", "-o", "tty=", "-p", Long.toString(self)).start();
+      String own = new String(ps.getInputStream().readAllBytes()).strip();
+      ps.waitFor();
+      var real = ProjectStatus.fromPs();
+      equal(real.live(self, own), true);
+      equal(real.live(self, own.equals("ttys999") ? "ttys998" : "ttys999"), false);
       Files.writeString(dir.resolve("ttys003"), "working ");
       equal(title(one), "🟡 2/2 finished");
       Files.delete(dir.resolve(".project"));
       equal(title(one), "");
       equal(title(two), "⚪ 1 running");
-      System.out.println("PASS: shell → cache → project titles (start/stop/restart, three sessions, independent projects, dead/malformed/atomic entries, unavailable metadata)");
+      System.out.println("PASS: shell → cache → project titles (start/stop/restart, three sessions, independent projects, dead/malformed/atomic entries, closed tabs, reused PIDs, real ps, unavailable metadata)");
     } finally {
       try (var paths = Files.walk(temp)) {
         for (Path p : paths.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(p);

@@ -69,8 +69,7 @@ public final class AgentTitleProvider implements TitleInfoProvider, Disposable {
   private void refresh() {
     if (disposed) return;
     try {
-      Map<Path, ProjectStatus.Counts> next = ProjectStatus.read(ProjectStatus.cacheDirectory(),
-        pid -> ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false));
+      Map<Path, ProjectStatus.Counts> next = ProjectStatus.read(ProjectStatus.cacheDirectory(), ProjectStatus.fromPs());
       Map<Project, String> nextTitles = new java.util.HashMap<>();
       for (Project project : ProjectManager.getInstance().getOpenProjects()) {
         String base = project.getBasePath();
