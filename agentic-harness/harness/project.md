@@ -45,6 +45,10 @@ Am Projektroot:
 
 Node.js 26.8.1, Pi 0.87.1 und macOS `/usr/bin/afplay` wurden lokal festgestellt. Direkter Soundplayer-Smoke-Test `afplay -v 0.5 /System/Library/Sounds/Pop.aiff` — PASS. Der vollständige Lifecycle-zu-Audio-und-Tabtitel-Smoke-Test in einer echten Pi-Sitzung im PyCharm-Terminal bleibt offen.
 
+### Versionierung
+
+Releases heißen zweistellig `v<Major>.<Minor>` (Tag `v1.3`, README und Plugin `1.3`); neue Releases zählen die zweite Stelle hoch (`v1.4`, …). Nur `package.json` braucht für npm das dreistellige SemVer-Format und führt `1.3.0`. Der frühere Tag `v1.2.3` wurde am 2026-10-17 in `v1.2.1` umbenannt; der Commit-Betreff `chore(release): 1.2.3` bleibt als veröffentlichte Historie unverändert.
+
 ### Nächster Schritt und offene Entscheidungen
 
 Companion in PyCharm laden (Installation siehe Root-README) und IDE erst nach Ende laufender Chats neu starten. Danach in einem anderen Projekt arbeiten und im inaktiven Projekt drei Sessions starten/abschließen/erneut starten: Die obere Übersicht muss ohne Klick wechseln; einzelne Coding-Tabs dürfen nur Punkt + Agent zeigen. Dieser Live-Nachweis sowie der vollständige Pi-Audio-Lauf bleiben offen; keine bestandene UI-Abnahme behaupten. Windows: seit 2026-10-17 nur Abschlusston (Pi-Extension und Claude-Hook über PowerShell, getrennter Zweig; macOS unverändert); Tabpunkte und Companion bleiben macOS-only. Echter Windows-Lauf noch nicht abgenommen. Linux, Remote-Audio-Relay und konfigurierbare Sounds bleiben vertagt.

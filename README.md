@@ -1,4 +1,4 @@
-# Agent Sound Notifier — Version 1.2.3
+# Agent Sound Notifier — Version 1.3
 
 Plays a short macOS sound and marks the terminal tab (e.g. in PyCharm) with a yellow dot when a coding agent finishes, so you notice it without watching the terminal. While the agent is working, the tab shows a neutral dot. It is independent of the model/provider.
 
