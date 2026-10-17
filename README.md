@@ -2,6 +2,8 @@
 
 Plays a short macOS sound and marks the terminal tab (e.g. in PyCharm) with a yellow dot when a coding agent finishes, so you notice it without watching the terminal. While the agent is working, the tab shows a neutral dot. It is independent of the model/provider.
 
+On **Windows** only the completion sound is supported; see [Windows](#windows).
+
 Supported agents:
 
 - **[Pi](https://github.com/earendil-works/pi)** — as a Pi extension (`extensions/agent-sound-notifier.ts`).
@@ -56,6 +58,45 @@ Also turn off Claude Code's own tab title, otherwise it overwrites the status:
 ```
 
 Start a new Claude Code session (or open `/hooks` once) to load them. Hooks have no controlling terminal, so the script writes the title to the terminal device of the nearest ancestor process (the `claude` CLI). In the Claude desktop app there is no terminal, so only the sound plays.
+
+## Windows
+
+On Windows the notifier plays the Windows notification sound (`C:\Windows\Media\Windows Notify System Generic.wav`, played through PowerShell) when Pi or Claude Code finishes or asks a follow-up question. **Tab dots and the PyCharm project totals are macOS-only**: Windows terminals have no terminal device the hooks could write the title to. The macOS setup above is unaffected.
+
+| Feature | macOS | Windows |
+|---|---|---|
+| Completion sound | ✅ `Pop` at half volume | ✅ Windows notification sound, system volume |
+| ⚪/🟡 terminal-tab dot | ✅ | ❌ |
+| PyCharm companion | ✅ | ❌ (do not install it) |
+
+Requirements: [Git for Windows](https://git-scm.com/download/win) (Claude Code runs hooks in Git Bash) and Windows PowerShell, which ships with Windows 10/11. Clone the repository normally; `.gitattributes` keeps the shell scripts on LF line endings so Git Bash can run them.
+
+**Pi** — in PowerShell, from the repository root:
+
+```powershell
+pi install "$PWD"
+```
+
+Restart Pi and check `pi list`. Do not install the PyCharm companion.
+
+**Claude Code** — add the hooks to `%USERPROFILE%\.claude\settings.json`. Use the absolute path with **forward slashes** and call the script through `bash`, e.g. for a checkout in `C:\Users\you\agent-sound-notifier`:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "bash \"C:/Users/you/agent-sound-notifier/hooks/claude-notify.sh\" stop 2>/dev/null || true", "async": true } ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "AskUserQuestion|ExitPlanMode", "hooks": [ { "type": "command", "command": "bash \"C:/Users/you/agent-sound-notifier/hooks/claude-notify.sh\" ask 2>/dev/null || true", "async": true } ] }
+    ]
+  }
+}
+```
+
+The `UserPromptSubmit`/`PostToolUse` hooks and `CLAUDE_CODE_DISABLE_TERMINAL_TITLE` from the macOS setup are not needed on Windows (they only drive tab dots). Start a new Claude Code session or open `/hooks` once to load them.
+
+Quick check in Git Bash: `bash hooks/claude-notify.sh stop` should play the sound. If nothing plays, check that `powershell.exe` runs from Git Bash and that Windows system sounds are not muted.
 
 ## PyCharm project tabs
 
