@@ -2,3 +2,6 @@
 agentic-harness/ export-ignore
 AGENTS.md export-ignore
 .gitattributes export-ignore
+
+# Shell scripts must keep LF endings on Windows checkouts, or Git Bash fails on \r.
+*.sh text eol=lf

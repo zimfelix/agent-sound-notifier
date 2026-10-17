@@ -26,6 +26,20 @@ set_status() {
   "$(dirname "$0")/agent-status.sh" "$1" Claude "${agent% *}" "${CLAUDE_PROJECT_DIR:-$PWD}" "${agent#* }"
 }
 
+# Windows (Claude Code runs hooks in Git Bash): no terminal devices, so no tab
+# status; only the completion sound via PowerShell. macOS continues below.
+case "$(uname -s 2>/dev/null)" in
+  MINGW*|MSYS*|CYGWIN*)
+    case "$1" in
+      stop|ask)
+        powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command \
+          "\$f = Join-Path \$env:WINDIR 'Media\\Windows Notify System Generic.wav'; if (Test-Path \$f) { (New-Object Media.SoundPlayer \$f).PlaySync() } else { [System.Media.SystemSounds]::Asterisk.Play(); Start-Sleep -Milliseconds 800 }"
+        ;;
+    esac
+    exit 0
+    ;;
+esac
+
 case "$1" in
   start) set_status start ;;
   stop|ask)

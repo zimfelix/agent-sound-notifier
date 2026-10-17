@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, mock, test } from "node:test";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { registerCompletionSound, type AgentStatus } from "../extensions/agent-sound-notifier.js";
+import { completionSoundCommand, registerCompletionSound, type AgentStatus } from "../extensions/agent-sound-notifier.js";
 
 type PiHandler = (event: unknown, ctx: ExtensionContext) => void;
 
@@ -91,4 +91,16 @@ test("does not let a sound failure interrupt the settled event", () => {
   assert.doesNotThrow(() => fire("agent_settled", fakeContext()));
   assert.equal(warning.mock.callCount(), 1);
   assert.deepEqual(statuses, ["stop /work/demo"]);
+});
+
+test("keeps the macOS sound command unchanged", () => {
+  assert.deepEqual(completionSoundCommand("darwin"), ["/usr/bin/afplay", ["-v", "0.5", "/System/Library/Sounds/Pop.aiff"]]);
+});
+
+test("plays a Windows system sound through hidden PowerShell", () => {
+  const [command, args] = completionSoundCommand("win32");
+  assert.equal(command, "powershell.exe");
+  assert.deepEqual(args.slice(0, 5), ["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command"]);
+  assert.match(args[5], /Media\\Windows Notify System Generic\.wav/);
+  assert.match(args[5], /PlaySync\(\)/);
 });
