@@ -1,6 +1,6 @@
 # Agent Sound Notifier — Version 1.4
 
-Plays a short macOS sound and marks the terminal tab (e.g. in PyCharm) with a yellow dot when a coding agent finishes, so you notice it without watching the terminal. While the agent is working, the tab shows a neutral dot. It is independent of the model/provider.
+Plays a short macOS sound and marks the terminal tab (PyCharm, Warp or Terminal.app) with a yellow dot when a coding agent finishes, so you notice it without watching the terminal. While the agent is working, the tab shows a neutral dot. It is independent of the model/provider.
 
 On **Windows** only the completion sound is supported; see [Windows](#windows).
 
@@ -9,7 +9,7 @@ Supported agents:
 - **[Pi](https://github.com/earendil-works/pi)** — as a Pi extension (`extensions/agent-sound-notifier.ts`).
 - **Claude Code** — as hooks (`hooks/claude-notify.sh`), see [Claude Code](#claude-code).
 
-The hooks are terminal-independent: they work in PyCharm's terminal, Terminal.app and Warp (verified in Warp: status entries and hook events fire; sound and tab dot need the user's ear/eye).
+**Terminals:** Sound and tab dots work in PyCharm's terminal, Terminal.app and **Warp** with the same setup; nothing Warp-specific is required. The project totals in the window title are PyCharm-only (companion).
 
 **Add-on (Claude Code): status line** — `statusline/` shows path/branch, last-message and average tok/s, context usage and model · effort. Context turns orange from 200k used tokens and red from 250k as a reminder to restart the session. Setup and details: [`statusline/README.md`](statusline/README.md).
 
