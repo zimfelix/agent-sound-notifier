@@ -41,13 +41,15 @@ Am Projektroot:
 - Companion lokal für nächsten IDE-Start installiert: `~/Library/Application Support/JetBrains/PyCharm2026.2/plugins/agent-project-status/`; JAR-Metadaten und Implementation geprüft. Laufende IDE nicht neu gestartet; sichtbare Projektupdates noch nicht abgenommen.
 - 2026-10-16: Veraltete Projektzahlen nach geschlossenen Tabs behoben (Session zählt nur bei passendem TTY laut `ps`); Java-Integration, `npm test` (11), Typprüfung, Shellsyntax und Plugin-Build PASS; JAR mit Backup installiert, IDE-Neustart und Live-Abnahme offen.
 - 2026-10-17 Windows-Ton: `npm test` PASS (13), Typprüfung und Shellsyntax PASS; Windows-Zweig von `hooks/claude-notify.sh` unter macOS mit Stubs für `uname`/`powershell.exe` geprüft (korrektes PowerShell-Skript, `start` ohne Wirkung). Kein Lauf auf echtem Windows/PowerShell.
+- `cd statusline && /usr/bin/python3 -m unittest -v test_statusline.py` — PASS (2026-10-21): 7 Tests des Statusline-Addons (Spec S002), inkl. Farbschwellen.
+- 2026-10-21 Warp: Claude-Hooks feuern in Warp (Statuseintrag `ttys003`, Hook-Events `UserPromptSubmit`/`Stop` beobachtet); Ton und Tabpunkt in Warp nur durch Betreiber prüfbar.
 - `pi install "$(pwd)"` — persönliche Pi-Installation ausgeführt; `pi list` zeigt das Paket `../../Code/python/agent-sound-notifier`.
 
 Node.js 26.8.1, Pi 0.87.1 und macOS `/usr/bin/afplay` wurden lokal festgestellt. Direkter Soundplayer-Smoke-Test `afplay -v 0.5 /System/Library/Sounds/Pop.aiff` — PASS. Der vollständige Lifecycle-zu-Audio-und-Tabtitel-Smoke-Test in einer echten Pi-Sitzung im PyCharm-Terminal bleibt offen.
 
 ### Versionierung
 
-Releases heißen zweistellig `v<Major>.<Minor>` (Tag `v1.3`, README und Plugin `1.3`); neue Releases zählen die zweite Stelle hoch (`v1.4`, …). Nur `package.json` braucht für npm das dreistellige SemVer-Format und führt `1.3.0`. Der frühere Tag `v1.2.3` wurde am 2026-10-17 in `v1.2.1` umbenannt; der Commit-Betreff `chore(release): 1.2.3` bleibt als veröffentlichte Historie unverändert.
+Releases heißen zweistellig `v<Major>.<Minor>` (Tag `v1.4`, README und Plugin `1.4`); neue Releases zählen die zweite Stelle hoch (`v1.4`, …). Nur `package.json` braucht für npm das dreistellige SemVer-Format und führt `1.4.0`. Der frühere Tag `v1.2.3` wurde am 2026-10-17 in `v1.2.1` umbenannt; der Commit-Betreff `chore(release): 1.2.3` bleibt als veröffentlichte Historie unverändert.
 
 ### Nächster Schritt und offene Entscheidungen
 
