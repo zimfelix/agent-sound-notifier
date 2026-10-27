@@ -2,13 +2,13 @@
 
 Small, independent add-ons for coding agents in the terminal. Pick any of the three:
 
-| # | Feature | What you get | macOS | Windows |
-|---|---|---|---|---|
-| 1 | **Sound** | A short sound when the agent finishes or asks you something. On macOS also a ⚪/🟡 dot in the terminal-tab title (working / done). | ✅ sound + tab dot | ✅ sound only |
-| 2 | **Status line** | `~/project (main)` · tok/s · context usage (orange from 200k, red from 250k tokens) · `Opus 5.5 · medium` | ✅ | ✅ |
-| 3 | **Output style** | "Strukturiert": skimmable German answers with result-first reports, 🔺 terms, 🎯 corrections, 🔀 trade-offs, diagrams instead of walls of text. | ✅ | ✅ |
+| # | Feature | Agent | What you get | macOS | Windows |
+|---|---|---|---|---|---|
+| 1 | **Sound** | Claude Code, Pi | A short sound when the agent finishes or asks you something. On macOS also a ⚪/🟡 dot in the terminal-tab title (working / done). | ✅ sound + tab dot | ✅ sound only |
+| 2 | **Status line** | Claude Code only | `~/project (main)` · tok/s · context usage (orange from 200k, red from 250k tokens) · `Opus 5.5 · medium` | ✅ | ✅ |
+| 3 | **Output style** | Claude Code only | "Strukturiert": skimmable German answers with result-first reports, 🔺 terms, 🎯 corrections, 🔀 trade-offs, diagrams instead of walls of text. | ✅ | ✅ |
 
-Features 2 and 3 are for **Claude Code**. Feature 1 works for Claude Code and **[Pi](https://github.com/earendil-works/pi)**. Nothing is sent anywhere; no extra model requests.
+Pi: see [Sound](#1--sound) for its extension. Nothing is sent anywhere; no extra model requests.
 
 ```text
 ~/Code/my-project (main)
