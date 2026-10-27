@@ -43,6 +43,7 @@ Am Projektroot:
 - 2026-10-17 Windows-Ton: `npm test` PASS (13), Typprüfung und Shellsyntax PASS; Windows-Zweig von `hooks/claude-notify.sh` unter macOS mit Stubs für `uname`/`powershell.exe` geprüft (korrektes PowerShell-Skript, `start` ohne Wirkung). Kein Lauf auf echtem Windows/PowerShell.
 - `cd statusline && /usr/bin/python3 -m unittest -v test_statusline.py` — PASS (2026-10-21): 7 Tests des Statusline-Addons (Spec S002), inkl. Farbschwellen.
 - 2026-10-21 Warp: Claude-Hooks feuern in Warp (Statuseintrag `ttys003`, Hook-Events `UserPromptSubmit`/`Stop` beobachtet); Ton und Tabpunkt in Warp nur durch Betreiber prüfbar.
+- 2026-10-27 Installer (Spec S003): `/usr/bin/python3 -m unittest -v tests/test_install.py` — 6 Tests PASS; `npm test` 13 PASS; Statusline 7 PASS. `install.py --all` gegen Kopie der echten `settings.json` (Scratchpad) geprüft: eigene Einträge unverändert, erzeugter Statusline-Befehl läuft. Echter Windows-Lauf offen.
 - `pi install "$(pwd)"` — persönliche Pi-Installation ausgeführt; `pi list` zeigt das Paket `../../Code/python/agent-sound-notifier`.
 
 Node.js 26.8.1, Pi 0.87.1 und macOS `/usr/bin/afplay` wurden lokal festgestellt. Direkter Soundplayer-Smoke-Test `afplay -v 0.5 /System/Library/Sounds/Pop.aiff` — PASS. Der vollständige Lifecycle-zu-Audio-und-Tabtitel-Smoke-Test in einer echten Pi-Sitzung im PyCharm-Terminal bleibt offen.

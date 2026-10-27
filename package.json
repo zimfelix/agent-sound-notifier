@@ -3,7 +3,7 @@
   "version": "1.4.0",
   "private": true,
   "type": "module",
-  "description": "Plays a sound and marks the terminal tab (PyCharm, Warp, Terminal.app) when a coding agent (Pi or Claude Code) finishes; plus a Claude Code status line add-on.",
+  "description": "Three add-ons for coding agents: completion sound (+ tab dot), Claude Code status line, and the 'Strukturiert' output style; macOS and Windows.",
   "keywords": [
     "pi-package"
   ],
@@ -11,6 +11,8 @@
     "extensions/",
     "hooks/",
     "statusline/",
+    "output-style/",
+    "install.py",
     "README.md"
   ],
   "engines": {

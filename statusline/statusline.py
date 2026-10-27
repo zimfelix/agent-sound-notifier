@@ -192,8 +192,10 @@ def model_text(data):
 
 
 def terminal_width():
+    # Windows has no /dev/tty; CONOUT$ is the console of the calling Claude Code process.
+    device, mode = ("CONOUT$", os.O_RDWR) if os.name == "nt" else ("/dev/tty", os.O_RDONLY)
     try:
-        fd = os.open("/dev/tty", os.O_RDONLY)
+        fd = os.open(device, mode)
         try:
             return os.get_terminal_size(fd).columns
         finally:
