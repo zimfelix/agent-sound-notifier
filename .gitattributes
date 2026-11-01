@@ -1,7 +1,7 @@
 # Developer-only files: kept in the repository, left out of GitHub ZIP/release archives.
 AGENTS.md export-ignore
 PROJECT.md export-ignore
-learning-state.md export-ignore
+learnings.md export-ignore
 docs/ export-ignore
 specs/ export-ignore
 ideas/ export-ignore
