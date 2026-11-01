@@ -1,6 +1,10 @@
 # Developer-only files: kept in the repository, left out of GitHub ZIP/release archives.
-agentic-harness/ export-ignore
 AGENTS.md export-ignore
+PROJECT.md export-ignore
+learning-state.md export-ignore
+docs/ export-ignore
+specs/ export-ignore
+ideas/ export-ignore
 .gitattributes export-ignore
 
 # Shell scripts must keep LF endings on Windows checkouts, or Git Bash fails on \r.
