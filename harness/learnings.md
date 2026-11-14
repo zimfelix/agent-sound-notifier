@@ -1,6 +1,6 @@
 # Learnings
 
-Dieser Kopf erklärt den Ablauf und ist in allen Projekten gleich; `tools/update.py` hält ihn aktuell. Projekteinträge stehen unter der Markierung weiter unten.
+Dieser Kopf erklärt den Ablauf und ist in allen Projekten gleich; `tools/update.py` im v6-Repo hält ihn aktuell. Projekteinträge stehen unter der Markierung weiter unten.
 
 ## So arbeiten wir
 
@@ -16,7 +16,7 @@ Fehler beim Arbeiten
 
 | | Wo |
 |---|---|
-| **Bleibt lokal** | Projektregeln unter der Linie in `AGENTS.md`, `PROJECT.md`, Specs, Code |
+| **Bleibt lokal** | Projektregeln unter der Linie in `AGENTS.md`, `harness/PROJECT.md`, Specs, Code |
 | **Kommt hierher** | Vorschläge für Core oder Skills, Konflikte zwischen Skills, Fragen an Felix |
 | **Wird übernommen** | in der Sichtung im Repo `agentic-harness-v6`, etwa wöchentlich oder ab drei offenen Einträgen: `python3 tools/learnings.py` zeigt die offenen Einträge aller Projekte. Übernommen wird nach „Reviewing and adopting learnings“ in der `AGENTS.md` des v6-Repos: einordnen, knapp formulieren, Prüfschleife (sinnvoll, keine Wiederholung, präzise, richtig eingeordnet, ufert nicht aus, prüfbar), erst dann übernehmen |
 

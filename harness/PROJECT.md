@@ -12,7 +12,7 @@ Daten und Rechte: Audio und Status bleiben lokal; keine Gesprächsinhalte oder N
 
 ## Architecture and tools
 
-Bausteine, Datenfluss, Stack und Codekonventionen: `docs/architecture.md`. Teststrategie: `docs/testing.md`.
+Bausteine, Datenfluss, Stack und Codekonventionen: `harness/docs/architecture.md`. Teststrategie: `harness/docs/testing.md`.
 
 Befehle am Projektroot:
 
