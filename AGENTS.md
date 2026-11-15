@@ -26,7 +26,7 @@ Read `harness/PROJECT.md` first. This file defines the working agreement, not an
 
 At task start, check open entries in `harness/learnings.md`; record harness problems there as its header says, never as self-authorized rewrites of these rules. Project rules go below the harness marker line; updates never change them. If `harness/harness-update.md` exists, raise it briefly at the next task, agree the step, apply it, then delete the file.
 
-<!-- harness-v6@882c60b · project rules below; tools/update.py never changes them -->
+<!-- harness-v6@70f722e · project rules below; tools/update.py never changes them -->
 
 ## Project rules
 
